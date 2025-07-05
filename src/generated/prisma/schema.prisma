@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MODEL ADMIN
+model Admin {
+  admin_id   Int      @id @default(autoincrement())
+  username   String
+  email      String   @unique
+  password   String
+  peran      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// MODEL KARYAWAN
+model Karyawan {
+  karyawan_id        Int               @id @default(autoincrement())
+  nama_karyawan      String
+  alamat             String
+  no_hp              String
+  email              String? //nullable
+  jenis_kelamin      JenisKelamin
+  status_kepegawaian StatusKepegawaian
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
+
+  // Relasi ke Divisi
+  Divisi Divisi[]
+}
+
+enum JenisKelamin {
+  L
+  P
+}
+
+// ENUM
+enum StatusKepegawaian {
+  PNS
+  NON_PNS
+}
+
+// MODEL DIVISI
+model Divisi {
+  divisi_id   Int      @id @default(autoincrement())
+  nama_divisi String
+  posisi      String
+  karyawan_id Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relasi ke Karyawan
+  Karyawan Karyawan @relation(fields: [karyawan_id], references: [karyawan_id])
+}
