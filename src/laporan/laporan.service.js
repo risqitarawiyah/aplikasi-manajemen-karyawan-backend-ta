@@ -1,12 +1,17 @@
 const laporanRepo = require('./laporan.repository');
 
-// Membuat laporan baru
+// Membuat satu laporan
 const buatLaporan = async ({ tipe_laporan, isi_laporan, created_by }) => {
   return await laporanRepo.createLaporan({
     tipe_laporan,
     isi_laporan,
     created_by,
   });
+};
+
+// Membuat banyak laporan sekaligus
+const buatBanyakLaporan = async (listLaporan) => {
+  return await laporanRepo.createBanyakLaporan(listLaporan);
 };
 
 // Ambil semua laporan
@@ -26,6 +31,7 @@ const getLaporanCount = async () => {
 
 module.exports = {
   buatLaporan,
+  buatBanyakLaporan,
   ambilSemuaLaporan,
   ambilLaporanBerdasarkanTanggal,
   getLaporanCount

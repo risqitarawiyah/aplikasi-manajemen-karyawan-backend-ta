@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-// Buat laporan baru
+// Buat satu laporan
 const createLaporan = async ({ tipe_laporan, isi_laporan, created_by }) => {
   return await prisma.laporan.create({
     data: {
@@ -9,6 +9,14 @@ const createLaporan = async ({ tipe_laporan, isi_laporan, created_by }) => {
       isi_laporan,
       created_by,
     },
+  })
+}
+
+// Buat banyak laporan sekaligus (untuk log multi divisi terhapus)
+const createBanyakLaporan = async (dataArray) => {
+  return await prisma.laporan.createMany({
+    data: dataArray,
+    skipDuplicates: false // tetap catat semua, meski sama
   })
 }
 
@@ -36,12 +44,13 @@ const getLaporanByDateRange = async (startDate, endDate) => {
 }
 
 // Hitung jumlah laporan
-async function countLaporans() {
-    return await prisma.laporan.count();
+const countLaporans = async () => {
+  return await prisma.laporan.count()
 }
 
 module.exports = {
   createLaporan,
+  createBanyakLaporan,
   getAllLaporan,
   getLaporanByDateRange,
   countLaporans

@@ -30,9 +30,19 @@ async function editKaryawanById(karyawan_id, karyawanData) {
     return await editKaryawan(karyawan_id, karyawanData);
 }
 
+// Delete karyawan dan kembalikan data karyawan & divisinya sebelum dihapus
 async function deleteKaryawanById(karyawan_id) {
-    await getKaryawanById(karyawan_id); // pastikan ada
+    const karyawan = await getKaryawanById(karyawan_id); // pastikan ada
+
+    // Ambil semua divisi milik karyawan ini
+    const divisis = await prisma.divisi.findMany({
+        where: { karyawan_id: parseInt(karyawan_id) }
+    });
+
+    // Hapus karyawan (otomatis hapus divisinya via onDelete: Cascade)
     await deleteKaryawan(karyawan_id);
+
+    return { karyawan, divisis };
 }
 
 async function getKaryawanCount() {

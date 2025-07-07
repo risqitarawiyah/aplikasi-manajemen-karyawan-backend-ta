@@ -10,6 +10,9 @@ const {
 
 const laporanService = require("../laporan/laporan.service");
 const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
 const router = express.Router();
 
 // Ambil nama admin dari token
@@ -34,7 +37,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Statistik jumlah karyawan — letakkan sebelum "/:id"
+// Statistik jumlah karyawan
 router.get("/count", async (req, res) => {
     try {
         const count = await getKaryawanCount();
@@ -63,9 +66,9 @@ router.post("/", async (req, res) => {
 
         const admin = ambilNamaAdminDariToken(req);
         await laporanService.buatLaporan({
-            tipe_laporan: "PDF",
-            isi_laporan: `Menambahkan data karyawan baru: ID ${newKaryawan.karyawan_id}, nama: ${newKaryawan.nama_karyawan}, status_pegawai: ${newKaryawan.status_kepegawaian}`,
-            created_by: admin
+        tipe_laporan: "PDF",
+        isi_laporan: `Menambahkan data karyawan baru: ID ${newKaryawan.karyawan_id}, nama: ${newKaryawan.nama_karyawan}, status_pegawai: ${newKaryawan.status_kepegawaian}`,
+        created_by: admin
         });
 
         res.status(201).json(newKaryawan);
@@ -83,9 +86,9 @@ router.put("/:id", async (req, res) => {
 
         const admin = ambilNamaAdminDariToken(req);
         await laporanService.buatLaporan({
-            tipe_laporan: "PDF",
-            isi_laporan: `Mengedit data karyawan: ID ${updatedKaryawan.karyawan_id}, nama: ${updatedKaryawan.nama_karyawan}, status_pegawai: ${updatedKaryawan.status_kepegawaian}`,
-            created_by: admin
+        tipe_laporan: "PDF",
+        isi_laporan: `Mengedit data karyawan: ID ${updatedKaryawan.karyawan_id}, nama: ${updatedKaryawan.nama_karyawan}, status_pegawai: ${updatedKaryawan.status_kepegawaian}`,
+        created_by: admin
         });
 
         res.json(updatedKaryawan);
@@ -97,26 +100,47 @@ router.put("/:id", async (req, res) => {
 // DELETE karyawan
 router.delete("/:id", async (req, res) => {
     try {
-        const karyawanId = req.params.id;
-        const karyawan = await getKaryawanById(parseInt(karyawanId));
+        const karyawanId = parseInt(req.params.id);
+        const karyawan = await getKaryawanById(karyawanId);
         if (!karyawan) {
-            return res.status(404).json({ message: "Karyawan tidak ditemukan" });
+        return res.status(404).json({ message: "Karyawan tidak ditemukan" });
         }
 
+        // Ambil semua divisi yang akan ikut terhapus
+        const divisis = await prisma.divisi.findMany({
+        where: { karyawan_id: karyawanId }
+        });
+
+        // Hapus karyawan (otomatis hapus divisi via onDelete: Cascade)
         await deleteKaryawanById(karyawanId);
 
         const admin = ambilNamaAdminDariToken(req);
-        const nama = karyawan.nama_karyawan || "(tidak ada nama)";
-        const status = karyawan.status_kepegawaian || "(tidak ada status)";
+        const logs = [];
 
-        await laporanService.buatLaporan({
-            tipe_laporan: "PDF",
-            isi_laporan: `Menghapus data karyawan: ID ${karyawan.karyawan_id}, nama: ${nama}, status_pegawai: ${status}`,
-            created_by: admin
+        // Log penghapusan karyawan
+        logs.push({
+        tipe_laporan: "PDF",
+        isi_laporan: `Menghapus data karyawan: ID ${karyawan.karyawan_id}, nama: ${karyawan.nama_karyawan}, status_pegawai: ${karyawan.status_kepegawaian}`,
+        created_by: admin
         });
 
-        res.status(200).json({ message: "Karyawan berhasil dihapus" });
+        // Log penghapusan divisi-divisi terkait
+        for (const divisi of divisis) {
+        logs.push({
+            tipe_laporan: "PDF",
+            isi_laporan: `Divisi "${divisi.nama_divisi}" (posisi: ${divisi.posisi}) milik karyawan "${karyawan.nama_karyawan}" juga ikut terhapus.`,
+            created_by: admin
+        });
+        }
+
+        // Simpan semua laporan
+        if (logs.length > 0) {
+        await laporanService.buatBanyakLaporan(logs);
+        }
+
+        res.status(200).json({ message: "Karyawan dan divisinya berhasil dihapus" });
     } catch (error) {
+        console.error("Gagal hapus karyawan:", error);
         res.status(400).send(error.message);
     }
 });
