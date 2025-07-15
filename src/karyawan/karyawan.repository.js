@@ -3,49 +3,62 @@ const prisma = new PrismaClient();
 
 // Read semua data karyawan
 async function findKaryawans() {
-    return await prisma.karyawan.findMany();
+    return await prisma.karyawan.findMany({
+        include: {
+            divisi: true,
+            jabatan: true
+        }
+    });
 }
 
 // Read karyawan berdasarkan id
-async function findKaryawanById(karyawan_id) {
+async function findKaryawanById(id) {
     return await prisma.karyawan.findUnique({
-        where: { karyawan_id: parseInt(karyawan_id) }
+        where: { id: parseInt(id) },
+        include: {
+            divisi: true,
+            jabatan: true
+        }
     });
 }
 
 // Tambah karyawan
-async function insertKaryawan(karyawanData) {
+async function insertKaryawan(data) {
     return await prisma.karyawan.create({
         data: {
-            nama_karyawan: karyawanData.nama_karyawan,
-            alamat: karyawanData.alamat,
-            no_hp: karyawanData.no_hp,
-            email: karyawanData.email,
-            jenis_kelamin: karyawanData.jenis_kelamin,
-            status_kepegawaian: karyawanData.status_kepegawaian,
+            nama: data.nama,
+            alamat: data.alamat,
+            no_hp: data.no_hp,
+            email: data.email,
+            jenis_kelamin: data.jenis_kelamin,
+            status_kepegawaian: data.status_kepegawaian,
+            divisiId: parseInt(data.divisiId),
+            jabatanId: parseInt(data.jabatanId),
         }
     });
 }
 
 // Update karyawan berdasarkan id
-async function editKaryawan(karyawan_id, karyawanData) {
+async function editKaryawan(id, data) {
     return await prisma.karyawan.update({
-        where: { karyawan_id: parseInt(karyawan_id) },
+        where: { id: parseInt(id) },
         data: {
-            nama_karyawan: karyawanData.nama_karyawan,
-            alamat: karyawanData.alamat,
-            no_hp: karyawanData.no_hp,
-            email: karyawanData.email,
-            jenis_kelamin: karyawanData.jenis_kelamin,
-            status_kepegawaian: karyawanData.status_kepegawaian,
+            nama: data.nama,
+            alamat: data.alamat,
+            no_hp: data.no_hp,
+            email: data.email,
+            jenis_kelamin: data.jenis_kelamin,
+            status_kepegawaian: data.status_kepegawaian,
+            divisiId: parseInt(data.divisiId),
+            jabatanId: parseInt(data.jabatanId),
         }
     });
 }
 
 // Delete karyawan
-async function deleteKaryawan(karyawan_id) {
-    await prisma.karyawan.delete({
-        where: { karyawan_id: parseInt(karyawan_id) }
+async function deleteKaryawan(id) {
+    return await prisma.karyawan.delete({
+        where: { id: parseInt(id) }
     });
 }
 

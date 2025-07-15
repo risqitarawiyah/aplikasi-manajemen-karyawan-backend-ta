@@ -1,57 +1,61 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-//read semua data divisi termasuk nama karyawan
+// Read semua data divisi dan karyawan yang ada di divisi itu
 async function findDivisis() {
-    const divisis = await prisma.divisi.findMany({
+    return await prisma.divisi.findMany({
         include: {
-            Karyawan: true, //relasi ke karyawan
+            karyawan: true, // ini relasi dari model Prisma (huruf kecil)
         },
     });
-    return divisis;
 }
 
-//read divisi berdasarkan id
-async function findDivisiById(divisi_id) {
-    const divisi = await prisma.divisi.findUnique({ where: { divisi_id: parseInt(divisi_id), },
-    include: { Karyawan: true },
-});
-return divisi;
+// Read satu divisi berdasarkan ID
+async function findDivisiById(id) {
+    return await prisma.divisi.findUnique({
+        where: { id: parseInt(id) },
+        include: {
+            karyawan: true,
+        },
+    });
 }
 
-//tambah divisi
-async function insertDivisi(divisiData) {
-    const newDivisi = await prisma.divisi.create({
+// Tambah divisi (hanya nama)
+async function insertDivisi(data) {
+    return await prisma.divisi.create({
         data: {
-            nama_divisi: divisiData.nama_divisi,
-            posisi: divisiData.posisi,
-            karyawan_id: parseInt(divisiData.karyawan_id),
+            nama: data.nama,
         },
     });
-    return newDivisi;
 }
 
-//update divisi berdasarkan id
-async function editDivisi(divisi_id, divisiData) {
-    const updatedDivisi = await prisma.divisi.update({ where: { divisi_id: parseInt(divisi_id), },
-    data: {
-            nama_divisi: divisiData.nama_divisi,
-            posisi: divisiData.posisi,
-            karyawan_id: parseInt(divisiData.karyawan_id),
-    },
-});
-return updatedDivisi;
+// Update divisi berdasarkan ID
+async function editDivisi(id, data) {
+    return await prisma.divisi.update({
+        where: { id: parseInt(id) },
+        data: {
+            nama: data.nama,
+        },
+    });
 }
 
-//delete divisi
-async function deleteDivisi(divisi_id) {
-    await prisma.divisi.delete({ where: { divisi_id: parseInt(divisi_id), },
-});
+// Delete divisi
+async function deleteDivisi(id) {
+    return await prisma.divisi.delete({
+        where: { id: parseInt(id) },
+    });
 }
 
-// Hitung jumlah karyawan
+// Hitung jumlah divisi
 async function countDivisis() {
     return await prisma.divisi.count();
 }
 
-module.exports = { findDivisis, findDivisiById, insertDivisi, editDivisi, deleteDivisi, countDivisis };
+module.exports = {
+    findDivisis,
+    findDivisiById,
+    insertDivisi,
+    editDivisi,
+    deleteDivisi,
+    countDivisis
+};

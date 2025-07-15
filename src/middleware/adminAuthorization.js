@@ -6,19 +6,16 @@ const authorizeAdmin = (req, res, next) => {
     return res.status(401).json({ message: 'Token tidak disediakan!' });
   }
 
-  const token = bearerHeader.split(' ')[1]; // ambil setelah "Bearer"
+  const token = bearerHeader.split(' ')[1]; // Ambil token setelah "Bearer"
 
   try {
-    console.log('Token diterima:', token);
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.peran !== 'ADMINISTRATOR') {
-      return res.status(403).json({ message: 'Anda tidak memiliki akses' });
-    }
-    next();
+
+    // Token valid, simpan data admin ke req untuk akses di endpoint
+    req.admin = decoded; // misalnya: { id, username, email }
+    
+    next(); // lanjut ke handler berikutnya
   } catch (error) {
-    console.error('Authorization error:', error.message);
     return res.status(401).json({ message: 'Token tidak valid!' });
   }
 };

@@ -3,11 +3,15 @@ const jwt = require('jsonwebtoken');
 const userRepository = require('./admin.repository');
 
 function generateToken(user) {
-    return jwt.sign({ adminId: user.admin_id, username: user.username, email: user.email, peran: user.peran }, process.env.JWT_SECRET, { expiresIn: '1h' });
-}
-
-async function hashPassword(password) {
-    return bcrypt.hash(password, 10);
+    return jwt.sign(
+        {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
 }
 
 async function register(username, email, password) {
@@ -17,12 +21,11 @@ async function register(username, email, password) {
             username,
             email,
             password: hashedPassword,
-            peran: "ADMINISTRATOR",
         };
         const newUser = await userRepository.createUser(user);
         return newUser;
     } catch (error) {
-        console.error("Error saat registrasi:", error); // tambahkan ini
+        console.error("Error saat registrasi:", error);
         throw new Error('Username atau Email sudah terdaftar');
     }
 }
@@ -38,32 +41,11 @@ async function login(username, password) {
         throw new Error("Username atau password tidak valid");
     }
 
-    const token = generateToken(user); //generate token untuk admin yang berhasil login 
-    return { user, token }; //mengembalikan variabel user dan token (yang berisikan token jwt)
-}
-
-async function getAllAdmins() {
-    return userRepository.findAllAdmins();
-}
-
-async function createAdmin(data) {
-    return userRepository.createUser(data);
-}
-
-async function updateAdmin(id, data) {
-    return userRepository.updateUser(id, data);
-}
-
-async function deleteAdmin(id) {
-    return userRepository.deleteUser(id);
+    const token = generateToken(user);
+    return { user, token };
 }
 
 module.exports = {
     register,
-    login,
-    getAllAdmins,
-    createAdmin,
-    updateAdmin,
-    deleteAdmin,
-    hashPassword
+    login
 };

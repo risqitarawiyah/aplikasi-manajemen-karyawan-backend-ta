@@ -1,5 +1,3 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const {
     findKaryawans,
     findKaryawanById,
@@ -26,23 +24,13 @@ async function createKaryawan(newKaryawanData) {
 }
 
 async function editKaryawanById(karyawan_id, karyawanData) {
-    await getKaryawanById(karyawan_id); // pastikan ada
+    await getKaryawanById(karyawan_id); // validasi eksistensi
     return await editKaryawan(karyawan_id, karyawanData);
 }
 
-// Delete karyawan dan kembalikan data karyawan & divisinya sebelum dihapus
 async function deleteKaryawanById(karyawan_id) {
-    const karyawan = await getKaryawanById(karyawan_id); // pastikan ada
-
-    // Ambil semua divisi milik karyawan ini
-    const divisis = await prisma.divisi.findMany({
-        where: { karyawan_id: parseInt(karyawan_id) }
-    });
-
-    // Hapus karyawan (otomatis hapus divisinya via onDelete: Cascade)
-    await deleteKaryawan(karyawan_id);
-
-    return { karyawan, divisis };
+    await getKaryawanById(karyawan_id); // validasi eksistensi
+    return await deleteKaryawan(karyawan_id);
 }
 
 async function getKaryawanCount() {
