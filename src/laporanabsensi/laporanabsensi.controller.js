@@ -6,12 +6,26 @@ const {
     updateLaporan,
     deleteLaporan,
     getLaporanCount,
-    filterLaporanByBulanTahun
+    filterLaporanByBulanTahun,
+    generateLaporanOtomatis
 } = require("./laporanabsensi.service");
 
 const router = express.Router();
 
-// GET semua laporan absensi
+// POST generate laporan otomatis (letakkan sebelum `/:id`)
+router.post("/generate", async (req, res) => {
+    const { bulan, tahun } = req.body;
+    if (!bulan || !tahun) return res.status(400).json({ error: "Bulan dan tahun wajib diisi." });
+
+    try {
+        const hasil = await generateLaporanOtomatis(parseInt(bulan), parseInt(tahun));
+        res.status(201).json({ message: "Laporan berhasil dibuat", data: hasil });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+//  GET semua laporan absensi
 router.get("/", async (req, res) => {
     try {
         const data = await getAllLaporan();
@@ -21,7 +35,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// GET jumlah laporan
+//  GET jumlah laporan
 router.get("/count", async (req, res) => {
     try {
         const count = await getLaporanCount();
@@ -31,7 +45,18 @@ router.get("/count", async (req, res) => {
     }
 });
 
-// GET laporan absensi by ID
+//  GET laporan berdasarkan bulan dan tahun
+router.get("/filter/:bulan/:tahun", async (req, res) => {
+    try {
+        const { bulan, tahun } = req.params;
+        const filtered = await filterLaporanByBulanTahun(parseInt(bulan), parseInt(tahun));
+        res.json(filtered);
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+});
+
+//  GET laporan berdasarkan ID
 router.get("/:id", async (req, res) => {
     try {
         const laporan = await getLaporanById(parseInt(req.params.id));
@@ -41,7 +66,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// POST laporan baru
+//  POST laporan baru
 router.post("/", async (req, res) => {
     try {
         const result = await createLaporan(req.body);
@@ -51,7 +76,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-// PUT update laporan
+//  PUT update laporan
 router.put("/:id", async (req, res) => {
     try {
         const updated = await updateLaporan(parseInt(req.params.id), req.body);
@@ -61,22 +86,11 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-// DELETE laporan
+//  DELETE laporan
 router.delete("/:id", async (req, res) => {
     try {
         await deleteLaporan(parseInt(req.params.id));
         res.json({ message: "Laporan berhasil dihapus" });
-    } catch (err) {
-        res.status(400).send(err.message);
-    }
-});
-
-// FILTER laporan berdasarkan bulan dan tahun
-router.get("/filter/:bulan/:tahun", async (req, res) => {
-    try {
-        const { bulan, tahun } = req.params;
-        const filtered = await filterLaporanByBulanTahun(parseInt(bulan), parseInt(tahun));
-        res.json(filtered);
     } catch (err) {
         res.status(400).send(err.message);
     }
