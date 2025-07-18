@@ -104,6 +104,16 @@ async function generateLaporanOtomatis(bulan, tahun) {
                 }
             });
             laporan.push(created);
+        } else {
+            const updated = await prisma.laporanAbsensi.update({
+                where: { id: existing.id },
+                data: {
+                    jumlah_hadir: hadir,
+                    jumlah_tidak_hadir: tidakHadir,
+                    persentase
+                }
+            });
+            laporan.push(updated)
         }
     }
     return laporan;

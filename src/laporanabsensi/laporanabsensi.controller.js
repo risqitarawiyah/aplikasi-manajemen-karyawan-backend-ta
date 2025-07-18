@@ -12,7 +12,7 @@ const {
 
 const router = express.Router();
 
-// POST generate laporan otomatis (letakkan sebelum `/:id`)
+// POST generate laporan otomatis 
 router.post("/generate", async (req, res) => {
     const { bulan, tahun } = req.body;
     if (!bulan || !tahun) return res.status(400).json({ error: "Bulan dan tahun wajib diisi." });

@@ -10,16 +10,6 @@ const {
 
 const router = express.Router();
 
-// GET semua jabatan
-router.get("/", async (req, res) => {
-    try {
-        const jabatans = await getAllJabatans();
-        res.status(200).json(jabatans);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
-
 // GET jumlah jabatan
 router.get("/count", async (req, res) => {
     try {
@@ -27,6 +17,16 @@ router.get("/count", async (req, res) => {
         res.json({ success: true, count });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// GET semua jabatan
+router.get("/", async (req, res) => {
+    try {
+        const jabatans = await getAllJabatans();
+        res.status(200).json(jabatans);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 });
 
