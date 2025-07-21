@@ -11,26 +11,24 @@ async function getAllKaryawans() {
     return await findKaryawans();
 }
 
-async function getKaryawanById(karyawan_id) {
-    const karyawan = await findKaryawanById(karyawan_id);
-    if (!karyawan) {
-        throw Error("Karyawan tidak ditemukan!");
-    }
+async function getKaryawanById(id) {
+    const karyawan = await findKaryawanById(id);
+    if (!karyawan) throw Error("Karyawan tidak ditemukan!");
     return karyawan;
 }
 
-async function createKaryawan(newKaryawanData) {
-    return await insertKaryawan(newKaryawanData);
+async function createKaryawan(data) {
+    return await insertKaryawan(data);
 }
 
-async function editKaryawanById(karyawan_id, karyawanData) {
-    await getKaryawanById(karyawan_id); // validasi eksistensi
-    return await editKaryawan(karyawan_id, karyawanData);
+async function editKaryawanById(id, data) {
+    await getKaryawanById(id);
+    return await editKaryawan(id, data);
 }
 
-async function deleteKaryawanById(karyawan_id) {
-    await getKaryawanById(karyawan_id); // validasi eksistensi
-    return await deleteKaryawan(karyawan_id);
+async function deleteKaryawanById(id) {
+    await getKaryawanById(id);
+    return await deleteKaryawan(id);
 }
 
 async function getKaryawanCount() {

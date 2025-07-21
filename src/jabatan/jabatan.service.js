@@ -27,8 +27,8 @@ async function editJabatanById(id, data) {
 }
 
 async function deleteJabatanById(id) {
-    await getJabatanById(id);
-    return await deleteJabatan(id);
+    await getJabatanById(id); 
+    return await deleteJabatan(id); 
 }
 
 async function getJabatanCount() {

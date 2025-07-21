@@ -40,6 +40,14 @@ app.use("/api/walikelas", adminAuthorization, waliKelasController);
 const laporanAbsensiController = require("./laporanabsensi/laporanabsensi.controller");
 app.use("/api/laporanabsensi", adminAuthorization, laporanAbsensiController);
 
+const guruController = require("./guru/guru.controller");
+app.use("/api/guru", adminAuthorization, guruController);
+
+const mapelController = require("./mapel/mapel.controller");
+app.use("/api/mapel", adminAuthorization, mapelController);
+
+
+
 // Start server
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);

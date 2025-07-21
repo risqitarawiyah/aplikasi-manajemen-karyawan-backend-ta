@@ -33,21 +33,55 @@ model Jabatan {
 }
 
 model Karyawan {
-  id                 Int               @id @default(autoincrement())
+  id                 Int                 @id @default(autoincrement())
   nama               String
   jenis_kelamin      String
   no_hp              String
   alamat             String
-  email              String @unique
-  status_kepegawaian String
+  email              String             @unique
+
+  statusId           Int
+  status_kepegawaian StatusKepegawaian  @relation(fields: [statusId], references: [id])
+
   divisiId           Int
   jabatanId          Int
 
-  divisi             Divisi            @relation(fields: [divisiId], references: [id])
-  jabatan            Jabatan           @relation(fields: [jabatanId], references: [id])
+  divisi             Divisi             @relation(fields: [divisiId], references: [id])
+  jabatan            Jabatan            @relation(fields: [jabatanId], references: [id])
+
+  guru               Guru?              // one-to-one dengan Guru
   absensi            Absensi[]
-  wali_kelas         WaliKelas?
   laporan_absensi    LaporanAbsensi[]
+}
+
+model StatusKepegawaian {
+  id        Int        @id @default(autoincrement())
+  nama      String     @unique
+  karyawans Karyawan[]
+}
+
+model Mapel {
+  id     Int     @id @default(autoincrement())
+  nama   String
+  guru   Guru[]
+}
+
+model Guru {
+  id             Int              @id @default(autoincrement())
+  karyawanId     Int              @unique
+  mapelId        Int
+  jumlahJtm      Int?
+  penempatan     JenisPenempatan
+
+  karyawan       Karyawan         @relation(fields: [karyawanId], references: [id])
+  mapel          Mapel            @relation(fields: [mapelId], references: [id])
+
+  waliKelas      WaliKelas?       @relation("RelasiWaliKelas") // satu guru bisa jadi satu wali kelas
+}
+
+enum JenisPenempatan {
+  SATMINKAL
+  NON_SATMINKAL
 }
 
 model Absensi {
@@ -60,12 +94,20 @@ model Absensi {
 }
 
 model WaliKelas {
-  id            Int      @id @default(autoincrement())
-  karyawanId    Int      @unique
-  kelas         String
-  jumlah_siswa  Int
+  id         Int      @id @default(autoincrement())
+  guruId     Int      @unique
+  kelasId    Int
 
-  karyawan      Karyawan @relation(fields: [karyawanId], references: [id])
+  guru       Guru     @relation("RelasiWaliKelas", fields: [guruId], references: [id])
+  kelas      Kelas    @relation(fields: [kelasId], references: [id])
+}
+
+model Kelas {
+  id           Int          @id @default(autoincrement())
+  nama         String       @unique
+  jumlah_siswa Int
+
+  wali_kelas   WaliKelas[]
 }
 
 model LaporanAbsensi {
