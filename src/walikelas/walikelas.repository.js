@@ -4,7 +4,14 @@ const prisma = new PrismaClient();
 // Ambil semua data
 async function findAllWaliKelas() {
     return await prisma.waliKelas.findMany({
-        include: { karyawan: true }
+        include: {
+        guru: {
+            include: {
+            karyawan: true
+            }
+        },
+        kelas: true
+        }
     });
 }
 
@@ -12,7 +19,14 @@ async function findAllWaliKelas() {
 async function findWaliKelasById(id) {
     return await prisma.waliKelas.findUnique({
         where: { id },
-        include: { karyawan: true }
+        include: {
+        guru: {
+            include: {
+            karyawan: true
+            }
+        },
+        kelas: true
+        }
     });
 }
 
@@ -20,9 +34,9 @@ async function findWaliKelasById(id) {
 async function insertWaliKelas(data) {
     return await prisma.waliKelas.create({
         data: {
-            karyawanId: parseInt(data.karyawanId),
-            kelas: data.kelas,
-            jumlah_siswa: parseInt(data.jumlah_siswa)
+            guruId: data.guruId ? parseInt(data.guruId) : null,
+            kelasId: data.kelasId ? parseInt(data.kelasId) : null,
+            tahun_ajaran: data.tahun_ajaran || null
         }
     });
 }
@@ -32,9 +46,9 @@ async function updateWaliKelasById(id, data) {
     return await prisma.waliKelas.update({
         where: { id },
         data: {
-            karyawanId: parseInt(data.karyawanId),
-            kelas: data.kelas,
-            jumlah_siswa: parseInt(data.jumlah_siswa)
+            guruId: data.guruId ? parseInt(data.guruId) : null,
+            kelasId: data.kelasId ? parseInt(data.kelasId) : null,
+            tahun_ajaran: data.tahun_ajaran || null
         }
     });
 }

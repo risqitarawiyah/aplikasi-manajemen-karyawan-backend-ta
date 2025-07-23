@@ -18,6 +18,9 @@ app.get("/", (req, res) => {
 });
 
 // Public route (tanpa token)
+const dashboardController = require('./dashboard/dashboard.controller');
+app.get('/api/dashboard/count', dashboardController.getDashboardCount);
+
 const adminController = require("./admin/admin.controller");
 app.use("/api/admins", adminController);
 
@@ -30,6 +33,12 @@ app.use("/api/divisis", adminAuthorization, divisiController);
 
 const jabatanController = require("./jabatan/jabatan.controller");
 app.use("/api/jabatans", adminAuthorization, jabatanController);
+
+const statusKepegawaianController = require("./statuskepegawaian/statuskepegawaian.controller");
+app.use("/api/statuskepegawaian", adminAuthorization, statusKepegawaianController);
+
+const kelasController = require("./kelas/kelas.controller");
+app.use("/api/kelas", adminAuthorization, kelasController);
 
 const absensiController = require("./absensi/absensi.controller");
 app.use("/api/absensis", adminAuthorization, absensiController);

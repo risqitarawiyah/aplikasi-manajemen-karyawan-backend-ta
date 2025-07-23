@@ -43,11 +43,9 @@ async function updateGuru(id, data) {
   }
 
   return await updateGuruById(id, {
-    nama: data.nama,
-    email: data.email,
-    no_hp: data.no_hp,
-    alamat: data.alamat,
-    penempatan: data.penempatan?.toUpperCase()
+    mapelId: data.mapelId,
+  jumlahJtm: data.jumlahJtm,
+  penempatan: data.penempatan?.toUpperCase()
   });
 }
 

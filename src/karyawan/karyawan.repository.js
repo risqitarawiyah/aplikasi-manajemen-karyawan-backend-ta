@@ -5,8 +5,14 @@ const prisma = new PrismaClient();
 async function findKaryawans() {
     return await prisma.karyawan.findMany({
         include: {
+            status_kepegawaian: true,
             divisi: true,
-            jabatan: true
+            jabatan: true,
+            guru: {
+                include: {
+                    mapel: true
+                }
+            }
         }
     });
 }
@@ -31,7 +37,7 @@ async function insertKaryawan(data) {
             no_hp: data.no_hp,
             email: data.email,
             jenis_kelamin: data.jenis_kelamin,
-            status_kepegawaian: data.status_kepegawaian,
+            statusId: data.statusId ? parseInt(data.statusId) : null,
             divisiId: parseInt(data.divisiId),
             jabatanId: parseInt(data.jabatanId),
         }
@@ -48,7 +54,7 @@ async function editKaryawan(id, data) {
             no_hp: data.no_hp,
             email: data.email,
             jenis_kelamin: data.jenis_kelamin,
-            status_kepegawaian: data.status_kepegawaian,
+            statusId: data.statusId ? parseInt(data.statusId) : null,
             divisiId: parseInt(data.divisiId),
             jabatanId: parseInt(data.jabatanId),
         }

@@ -7,6 +7,11 @@ async function findAllGurus() {
     include: {
       karyawan: true,
       mapel: true,
+    },
+    orderBy: {
+      karyawan: {
+        nama: 'asc'
+      }
     }
   });
 }
@@ -39,7 +44,6 @@ async function updateGuruById(id, data) {
   return await prisma.guru.update({
     where: { id },
     data: {
-      karyawanId: data.karyawanId,
       mapelId: data.mapelId,
       jumlahJtm: data.jumlahJtm,
       penempatan: data.penempatan
