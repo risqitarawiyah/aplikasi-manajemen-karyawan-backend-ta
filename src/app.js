@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 
 // Public route (tanpa token)
 const dashboardController = require('./dashboard/dashboard.controller');
-app.get('/api/dashboard/count', dashboardController.getDashboardCount);
+app.get('/api/dashboard', dashboardController.getDashboardCounts);
 
 const adminController = require("./admin/admin.controller");
 app.use("/api/admins", adminController);
