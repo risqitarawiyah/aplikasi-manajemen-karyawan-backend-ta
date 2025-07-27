@@ -2,9 +2,6 @@ const express = require("express");
 const {
     getAllLaporan,
     getLaporanById,
-    createLaporan,
-    updateLaporan,
-    deleteLaporan,
     getLaporanCount,
     filterLaporanByBulanTahun,
     generateLaporanOtomatis
@@ -63,36 +60,6 @@ router.get("/:id", async (req, res) => {
         res.json(laporan);
     } catch (err) {
         res.status(404).send(err.message);
-    }
-});
-
-//  POST laporan baru
-router.post("/", async (req, res) => {
-    try {
-        const result = await createLaporan(req.body);
-        res.status(201).json(result);
-    } catch (err) {
-        res.status(400).send(err.message);
-    }
-});
-
-//  PUT update laporan
-router.put("/:id", async (req, res) => {
-    try {
-        const updated = await updateLaporan(parseInt(req.params.id), req.body);
-        res.json(updated);
-    } catch (err) {
-        res.status(400).send(err.message);
-    }
-});
-
-//  DELETE laporan
-router.delete("/:id", async (req, res) => {
-    try {
-        await deleteLaporan(parseInt(req.params.id));
-        res.json({ message: "Laporan berhasil dihapus" });
-    } catch (err) {
-        res.status(400).send(err.message);
     }
 });
 

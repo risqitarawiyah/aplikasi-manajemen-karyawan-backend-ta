@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
     res.send('Hello there!');
 });
 
-// Public route (tanpa token)
+// Public routes (tanpa token)
 const dashboardController = require('./dashboard/dashboard.controller');
 app.get('/api/dashboard', dashboardController.getDashboardCounts);
 
@@ -54,8 +54,6 @@ app.use("/api/guru", adminAuthorization, guruController);
 
 const mapelController = require("./mapel/mapel.controller");
 app.use("/api/mapel", adminAuthorization, mapelController);
-
-
 
 // Start server
 app.listen(PORT, () => {
