@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
@@ -27,10 +26,8 @@ app.use("/api/admins", adminController);
 // Protected routes (perlu token login)
 const karyawanController = require("./karyawan/karyawan.controller");
 app.use("/api/karyawans", adminAuthorization, karyawanController);
-
 const divisiController = require("./divisi/divisi.controller");
 app.use("/api/divisis", adminAuthorization, divisiController);
-
 const jabatanController = require("./jabatan/jabatan.controller");
 app.use("/api/jabatans", adminAuthorization, jabatanController);
 
