@@ -1,3 +1,5 @@
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const {
   findAllGurus,
   findGuruById,
@@ -19,18 +21,33 @@ async function getGuruById(id) {
   return guru;
 }
 
-// Tambah guru baru
 async function createGuru(data) {
+  console.log("Data diterima:", data);
+
   // Validasi enum penempatan
   if (!["SATMINKAL", "NON_SATMINKAL"].includes(data.penempatan?.toUpperCase())) {
     throw new Error("Penempatan harus berupa 'SATMINKAL' atau 'NON_SATMINKAL'");
   }
 
+  // Cek apakah karyawan memang guru
+  const karyawan = await prisma.karyawan.findUnique({
+    where: { id: parseInt(data.karyawanId) },
+    include: { divisi: true },
+  });
+
+  console.log("Karyawan ditemukan:", karyawan);
+
+  if (!karyawan) throw new Error("Karyawan tidak ditemukan");
+
+  if (karyawan.divisi?.nama?.trim().toLowerCase() !== "guru") {
+    throw new Error("Hanya karyawan dengan divisi 'Guru' yang bisa ditambahkan sebagai guru");
+  }
+
   return await insertGuru({
     karyawanId: data.karyawanId,
-      mapelId: data.mapelId,
-      jumlahJtm: data.jumlahJtm,
-      penempatan: data.penempatan.toUpperCase()
+    mapelId: data.mapelId,
+    jumlahJtm: data.jumlahJtm,
+    penempatan: data.penempatan.toUpperCase(),
   });
 }
 
@@ -44,8 +61,8 @@ async function updateGuru(id, data) {
 
   return await updateGuruById(id, {
     mapelId: data.mapelId,
-  jumlahJtm: data.jumlahJtm,
-  penempatan: data.penempatan?.toUpperCase()
+    jumlahJtm: data.jumlahJtm,
+    penempatan: data.penempatan?.toUpperCase()
   });
 }
 

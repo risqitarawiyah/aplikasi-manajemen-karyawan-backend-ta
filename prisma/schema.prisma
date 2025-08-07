@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,15 +15,15 @@ model Admin {
 }
 
 model Divisi {
-  id          Int        @id @default(autoincrement())
-  nama        String
-  karyawan    Karyawan[]
+  id       Int        @id @default(autoincrement())
+  nama     String
+  karyawan Karyawan[]
 }
 
 model Jabatan {
-  id          Int        @id @default(autoincrement())
-  nama        String
-  karyawan    Karyawan[]
+  id       Int                @id @default(autoincrement())
+  nama     String
+  karyawan KaryawanJabatan[]  // relasi Many-to-Many
 }
 
 model Karyawan {
@@ -40,18 +34,27 @@ model Karyawan {
   alamat             String
   email              String             @unique
 
-  statusId           Int  
+  statusId           Int
   status_kepegawaian StatusKepegawaian? @relation(fields: [statusId], references: [id])
 
   divisiId           Int
-  jabatanId          Int
-
   divisi             Divisi             @relation(fields: [divisiId], references: [id])
-  jabatan            Jabatan            @relation(fields: [jabatanId], references: [id])
 
-  guru               Guru?
-  absensi            Absensi[]
-  laporan_absensi    LaporanAbsensi[]
+  // HAPUS jabatanId tunggal, ganti Many-to-Many
+  jabatans           KaryawanJabatan[]
+
+  guru               Guru[]
+}
+
+model KaryawanJabatan {
+  id          Int       @id @default(autoincrement())
+  karyawanId  Int
+  jabatanId   Int
+
+  karyawan    Karyawan  @relation(fields: [karyawanId], references: [id])
+  jabatan     Jabatan   @relation(fields: [jabatanId], references: [id])
+
+  @@unique([karyawanId, jabatanId]) // satu kombinasi unik
 }
 
 model StatusKepegawaian {
@@ -68,7 +71,7 @@ model Mapel {
 
 model Guru {
   id             Int              @id @default(autoincrement())
-  karyawanId     Int              @unique
+  karyawanId     Int
   mapelId        Int
   jumlahJtm      Int?
   penempatan     JenisPenempatan
@@ -76,7 +79,7 @@ model Guru {
   karyawan       Karyawan         @relation(fields: [karyawanId], references: [id])
   mapel          Mapel            @relation(fields: [mapelId], references: [id])
 
-  waliKelas      WaliKelas?       @relation("RelasiWaliKelas") // satu guru bisa jadi satu wali kelas
+  waliKelas      WaliKelas?       @relation("RelasiWaliKelas")
 }
 
 enum JenisPenempatan {
@@ -84,20 +87,11 @@ enum JenisPenempatan {
   NON_SATMINKAL
 }
 
-model Absensi {
-  id            Int       @id @default(autoincrement())
-  tanggal       DateTime
-  status        String    // TW, TD, LP, DL, S, I, A, C
-  karyawanId    Int
-
-  karyawan      Karyawan  @relation(fields: [karyawanId], references: [id])
-}
-
 model WaliKelas {
   id            Int      @id @default(autoincrement())
-  guruId        Int      @unique  
-  kelasId       Int      
-  tahun_ajaran  String   
+  guruId        Int      @unique
+  kelasId       Int
+  tahun_ajaran  String
 
   guru       Guru?     @relation("RelasiWaliKelas", fields: [guruId], references: [id])
   kelas      Kelas?    @relation(fields: [kelasId], references: [id])
@@ -111,16 +105,4 @@ model Kelas {
   jumlah_siswa Int
 
   wali_kelas   WaliKelas[]
-}
-
-model LaporanAbsensi {
-  id                  Int      @id @default(autoincrement())
-  karyawanId          Int
-  bulan               Int
-  tahun               Int
-  jumlah_hadir        Int
-  jumlah_tidak_hadir  Int
-  persentase          Float
-
-  karyawan            Karyawan @relation(fields: [karyawanId], references: [id])
 }

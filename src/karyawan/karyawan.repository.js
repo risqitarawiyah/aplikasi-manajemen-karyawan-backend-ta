@@ -1,34 +1,38 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Read semua data karyawan
+// Ambil semua data karyawan beserta relasinya
 async function findKaryawans() {
     return await prisma.karyawan.findMany({
         include: {
             status_kepegawaian: true,
             divisi: true,
-            jabatan: true,
+            jabatans: {               // include relasi many-to-many
+                include: { jabatan: true }
+            },
             guru: {
-                include: {
-                    mapel: true
-                }
+                include: { mapel: true }
             }
         }
     });
 }
 
-// Read karyawan berdasarkan id
+// Ambil karyawan berdasarkan id
 async function findKaryawanById(id) {
     return await prisma.karyawan.findUnique({
         where: { id: parseInt(id) },
         include: {
+            status_kepegawaian: true,
             divisi: true,
-            jabatan: true
+            jabatans: {
+                include: { jabatan: true }
+            },
+            guru: { include: { mapel: true } }
         }
     });
 }
 
-// Tambah karyawan
+// Tambah karyawan baru dengan jabatans (array jabatanId)
 async function insertKaryawan(data) {
     return await prisma.karyawan.create({
         data: {
@@ -39,13 +43,28 @@ async function insertKaryawan(data) {
             jenis_kelamin: data.jenis_kelamin,
             statusId: data.statusId ? parseInt(data.statusId) : null,
             divisiId: parseInt(data.divisiId),
-            jabatanId: parseInt(data.jabatanId),
+
+            // Hubungkan ke banyak jabatan
+            jabatans: {
+                create: data.jabatanIds.map(id => ({
+                    jabatanId: parseInt(id)
+                }))
+            }
+        },
+        include: {
+            jabatans: { include: { jabatan: true } }
         }
     });
 }
 
-// Update karyawan berdasarkan id
+// Update karyawan + reset jabatannya
 async function editKaryawan(id, data) {
+    // Hapus semua relasi lama di pivot
+    await prisma.karyawanJabatan.deleteMany({
+        where: { karyawanId: parseInt(id) }
+    });
+
+    // Update data utama + insert jabatans baru
     return await prisma.karyawan.update({
         where: { id: parseInt(id) },
         data: {
@@ -56,15 +75,29 @@ async function editKaryawan(id, data) {
             jenis_kelamin: data.jenis_kelamin,
             statusId: data.statusId ? parseInt(data.statusId) : null,
             divisiId: parseInt(data.divisiId),
-            jabatanId: parseInt(data.jabatanId),
+            jabatans: {
+                create: data.jabatanIds.map(jid => ({
+                    jabatanId: parseInt(jid)
+                }))
+            }
+        },
+        include: {
+            jabatans: { include: { jabatan: true } }
         }
     });
 }
 
-// Delete karyawan
+// Hapus karyawan beserta relasi jabatannya
 async function deleteKaryawan(id) {
+    const karyawanId = parseInt(id);
+
+    // Hapus relasi di pivot dulu
+    await prisma.karyawanJabatan.deleteMany({
+        where: { karyawanId }
+    });
+
     return await prisma.karyawan.delete({
-        where: { id: parseInt(id) }
+        where: { id: karyawanId }
     });
 }
 
