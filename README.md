@@ -51,5 +51,5 @@ BACK-END/
 2. **Postman / Apidog**:
    - Import file `openapi.json` ke Postman/Apidog.
    - API siap diuji.
-
+     note: *jangan lupa sesuaikan url server pada file openapi.json sebelum import ke swagger*
    
