@@ -29,7 +29,7 @@ BACK-END/
 - app.js       # Entry point aplikasi
 ## Instalasi
 1. Clone Repository
-   `git clone (https://github.com/risqitarawiyah/aplikasi-manajemen-karyawan-backend-ta.git)`
+   `git clone https://github.com/risqitarawiyah/aplikasi-manajemen-karyawan-backend-ta.git`
    `cd aplikasi-manajemen-karyawan-backend-ta`
 2. Install dependencies
    `npm install`
